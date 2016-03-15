@@ -110,6 +110,10 @@ final class PerfOptions {
 
   public bool $notBenchmarking = false;
 
+  // Fine tune for some benchmark options.
+  public ?int $benchmarkConcurrency;
+  public ?string $benchmarkTime;
+
   private array $args;
   private Vector<string> $notBenchmarkingArgs = Vector {};
 
@@ -142,6 +146,8 @@ final class PerfOptions {
       'profBC',
       'setUpTest:',
       'tearDownTest:',
+      'benchmark-time:',
+      'benchmark-concurrency:',
       'i-am-not-benchmarking',
       'hhvm-extra-arguments:',
       'php-extra-arguments:',
@@ -214,6 +220,9 @@ final class PerfOptions {
       }
       $this->forceInnodb = true;
     }
+
+    $this->benchmarkTime = hphp_array_idx($o, 'benchmark-time', null);
+    $this->benchmarkConcurrency = hphp_array_idx($o, 'benchmark-concurrency', null);
 
     $this->notBenchmarking = array_key_exists('i-am-not-benchmarking', $o);
 
@@ -376,6 +385,26 @@ final class PerfOptions {
       );
     }
 
+    if ($this->benchmarkTime != null) {
+      // [1-9]+[HMS]
+      if (!preg_match("/^[1-9][0-9]*[HMS]{1}$/", $this->benchmarkTime)) {
+        fprintf(STDERR, "*** WARNING ***\n Invalid benchmark time format: %s.
+        Examples of valid format are 2M, 30S, 1H. Using default 1M.\n",
+        $this->benchmarkTime);
+        // Already have a static method who return the default value for siege.
+        $this->benchmarkTime = null;
+      }
+    }
+
+    if ($this->benchmarkConcurrency != null) {
+      if (!preg_match("/^[1-9][0-9]*/", $this->benchmarkConcurrency)) {
+       fprintf(STDERR, "*** WARNING ***\n Invalid benchmark concurrency value:
+        %s. Must be a value greater than 0. Using default 200.\n",
+        $this->benchmarkConcurrency);
+        // Already have a static method who return the default value for siege.
+        $this->benchmarkConcurrency = null;
+      }
+    }
     SystemChecks::CheckAll($this);
 
     // Validates that one was defined
