@@ -111,7 +111,7 @@ final class PerfOptions {
   public bool $notBenchmarking = false;
 
   // Fine tune for some benchmark options.
-  public ?int $benchmarkConcurrency;
+  public ?string $benchmarkConcurrency;
   public ?string $benchmarkTime;
 
   private array $args;
@@ -221,9 +221,6 @@ final class PerfOptions {
       $this->forceInnodb = true;
     }
 
-    $this->benchmarkTime = hphp_array_idx($o, 'benchmark-time', null);
-    $this->benchmarkConcurrency = hphp_array_idx($o, 'benchmark-concurrency', null);
-
     $this->notBenchmarking = array_key_exists('i-am-not-benchmarking', $o);
 
     // If any arguments below here are given, then the "standard
@@ -242,6 +239,9 @@ final class PerfOptions {
     $this->waitAtEnd = $this->getBool('wait-at-end');
     $this->proxygen = !$this->getBool('no-proxygen');
     $this->applyPatches = $this->getBool('apply-patches');
+
+    $this->benchmarkTime = $this->getNullableString('benchmark-time');
+    $this->benchmarkConcurrency = $this->getNullableString('benchmark-concurrency');
 
     $this->precompile = !$this->getBool('no-repo-auth');
     $this->filecache = $this->precompile && !$this->getBool('no-file-cache');
