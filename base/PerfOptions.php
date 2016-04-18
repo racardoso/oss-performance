@@ -121,7 +121,7 @@ final class PerfOptions {
     $def = Vector {
       'help',
       'verbose',
-      'php:',
+      'php-cgi:',
       'hhvm:',
       'siege:',
       'nginx:',
@@ -186,7 +186,7 @@ final class PerfOptions {
       fprintf(
         STDERR,
         "Usage: %s \\\n".
-        "  --<php=/path/to/php-cgi|hhvm=/path/to/hhvm>\\\n".
+        "  --<php-cgi=/path/to/php-cgi|hhvm=/path/to/hhvm>\\\n".
         "  --<".
         implode('|', $targets).
         ">\n".
@@ -200,7 +200,7 @@ final class PerfOptions {
     ;
     $this->verbose = array_key_exists('verbose', $o);
 
-    $this->php = hphp_array_idx($o, 'php', null);
+    $this->php = hphp_array_idx($o, 'php-cgi', null);
     $this->hhvm = hphp_array_idx($o, 'hhvm', null);
 
     $this->setUpTest = hphp_array_idx($o, 'setUpTest', null);
@@ -335,7 +335,7 @@ final class PerfOptions {
     }
     if ($this->php === null && $this->hhvm === null) {
       invariant_violation(
-        'Either --php=/path/to/php-cgi or --hhvm=/path/to/hhvm '.
+        'Either --php-cgi=/path/to/php-cgi or --hhvm=/path/to/hhvm '.
         "must be specified",
       );
     }
